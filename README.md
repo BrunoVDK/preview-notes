@@ -1,0 +1,1 @@
+Utility app for getting all notes made with Preview (macOS) from a PDF.
