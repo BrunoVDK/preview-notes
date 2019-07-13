@@ -15,11 +15,11 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
-                <menuItem title="CourseWork" id="1Xt-HY-uBw">
+                <menuItem title="Annotate Handouts" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="CourseWork" systemMenu="apple" id="uQy-DD-JDr">
+                    <menu key="submenu" title="Annotate Handouts" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="Hide coursework" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide Annotate Handouts" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
@@ -37,7 +37,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                            <menuItem title="Quit coursework" keyEquivalent="q" id="4sb-4s-VLi">
+                            <menuItem title="Quit Annotate Handouts" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="terminate:" target="-1" id="Te7-pn-YzF"/>
                                 </connections>
