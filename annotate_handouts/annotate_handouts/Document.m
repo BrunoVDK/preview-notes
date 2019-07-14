@@ -61,6 +61,7 @@
 }
 
 - (void)loadPageData {
+    [self saveCurrentPage];
     PDFPage *page = self.pdfView.currentPage;
     NSUInteger pageNumber = [self.pdfView.document indexForPage:self.pdfView.currentPage];
     NSUInteger pageCount = self.pdfView.document.pageCount;
@@ -80,19 +81,32 @@
         [page addAnnotation:annotation];
     }
     NSString *text = annotation.contents;
-    self.textView.string = (text ? text : @"");
+    if (text && text.length > 0) {
+        NSData *data = [[NSData alloc] initWithBase64EncodedString:text
+                                                           options:NSDataBase64DecodingIgnoreUnknownCharacters];
+        [self.textView replaceCharactersInRange:NSMakeRange(0, self.textView.string.length)
+                                       withRTFD:data];
+    }
+    else
+        self.textView.string = @"";
     [self.textView moveToEndOfDocument:self];
     self.statusText.stringValue = [NSString stringWithFormat:@"Page %li/%li", (pageNumber+1), pageCount];
 }
 
 - (void)textDidChange:(NSNotification *)notification {
-    annotation.contents = self.textView.string;
     [self updateChangeCount:NSChangeDone];
+}
+
+- (void)saveCurrentPage {
+    NSData *rtf = [self.textView RTFDFromRange:NSMakeRange(0, self.textView.string.length)];
+    NSString *string = [rtf base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    annotation.contents = string;
 }
 
 #pragma mark Data
 
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
+    [self saveCurrentPage]; // Not the right place
     return self.pdfView.document.dataRepresentation;
 }
 
@@ -145,6 +159,7 @@
 
 - (IBAction)exportNotes:(id)sender {
     NSString *text = @"";
+    NSTextView *standin = [NSTextView new];
     for (int i=0 ; i<self.pdfView.document.pageCount ; i++) {
         PDFPage *page = [self.pdfView.document pageAtIndex:i];
         NSUInteger pageNumber = [self.pdfView.document indexForPage:page];
@@ -155,8 +170,15 @@
                 break;
             }
         }
-        if (currentAnnotation && currentAnnotation.contents.length > 0)
-            text = [text stringByAppendingString:[NSString stringWithFormat:@"Slide %lu\n\n %@\n\n", pageNumber, currentAnnotation.contents]];
+        if (currentAnnotation && currentAnnotation.contents.length > 0) {
+            NSData *data = [[NSData alloc] initWithBase64EncodedString:currentAnnotation.contents
+                                        options:NSDataBase64DecodingIgnoreUnknownCharacters];
+            
+            [standin replaceCharactersInRange:NSMakeRange(0, standin.string.length) withRTFD:data];
+            NSString *string = standin.string;
+            if (string.length > 0)
+                text = [text stringByAppendingString:[NSString stringWithFormat:@"Slide %lu\n\n %@\n\n", pageNumber, string]];
+        }
     }
     NSSavePanel *panel = [NSSavePanel savePanel];
     [panel beginSheetModalForWindow:self.windowControllers.firstObject.window completionHandler:^(NSModalResponse response) {
