@@ -37,6 +37,7 @@
     self.pdfView.backgroundColor = [NSColor clearColor];
     self.pdfView.needsDisplay = true;
     self.pdfView.displayMode = kPDFDisplaySinglePage;
+    self.pdfView.autoScales = true;
     [self loadPageData];
 }
 
@@ -187,6 +188,10 @@
         else
             NSBeep();
     }];
+}
+
+- (IBAction)reformat:(id)sender {
+    self.textView.font = [NSFont fontWithName:@"Helvetica-Light" size:14.0];
 }
 
 @end
