@@ -66,12 +66,12 @@
                                             <rect key="frame" x="0.0" y="0.0" width="254" height="642"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
-                                                <textView ambiguous="YES" drawsBackground="NO" verticallyResizable="YES" usesFontPanel="YES" usesInspectorBar="YES" continuousSpellChecking="YES" usesRuler="YES" grammarChecking="YES" smartInsertDelete="YES" id="Kze-RZ-eE0">
-                                                    <rect key="frame" x="0.0" y="0.0" width="240" height="602"/>
+                                                <textView ambiguous="YES" drawsBackground="NO" verticallyResizable="YES" usesFontPanel="YES" usesInspectorBar="YES" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" smartInsertDelete="YES" id="Kze-RZ-eE0">
+                                                    <rect key="frame" x="0.0" y="0.0" width="225" height="602"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    <size key="minSize" width="240" height="602"/>
+                                                    <size key="minSize" width="225" height="602"/>
                                                     <size key="maxSize" width="254" height="10000000"/>
                                                     <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                     <allowedInputSourceLocales>

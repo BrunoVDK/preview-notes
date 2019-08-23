@@ -9,6 +9,8 @@
 #import "Document.h"
 
 #define IDENTIFIER @"Course Work"
+#define DEFAULT_FONT [NSFont fontWithName:@"Helvetica-Light" size:14.0]
+#define DEFAULT_BOLD_FONT [NSFont fontWithName:@"Helvetica-Bold" size:14.0]
 
 @interface Document ()
 @property (weak) IBOutlet PDFView *pdfView;
@@ -159,39 +161,59 @@
 }
 
 - (IBAction)exportNotes:(id)sender {
-    NSString *text = @"";
-    NSTextView *standin = [NSTextView new];
+    NSTextView *standinTextview = [NSTextView new];
+    [standinTextview replaceCharactersInRange:NSMakeRange(0,0) withRTF:[self rtfTitle]];
     for (int i=0 ; i<self.pdfView.document.pageCount ; i++) {
         PDFPage *page = [self.pdfView.document pageAtIndex:i];
-        NSUInteger pageNumber = [self.pdfView.document indexForPage:page];
         PDFAnnotation *currentAnnotation = nil;
-        for (PDFAnnotation *pageAnnotation in page.annotations) {
+        for (PDFAnnotation *pageAnnotation in page.annotations)
             if ([pageAnnotation.type isEqualToString:IDENTIFIER]) {
                 currentAnnotation = pageAnnotation;
                 break;
             }
-        }
         if (currentAnnotation && currentAnnotation.contents.length > 0) {
             NSData *data = [[NSData alloc] initWithBase64EncodedString:currentAnnotation.contents
                                         options:NSDataBase64DecodingIgnoreUnknownCharacters];
-            
-            [standin replaceCharactersInRange:NSMakeRange(0, standin.string.length) withRTFD:data];
-            NSString *string = standin.string;
-            if (string.length > 0)
-                text = [text stringByAppendingString:[NSString stringWithFormat:@"Slide %lu\n\n %@\n\n", pageNumber, string]];
+            NSAttributedString *contentString = [[NSAttributedString alloc] initWithRTFD:data documentAttributes:NULL];
+            if (contentString.length > 0) {
+                [standinTextview replaceCharactersInRange:NSMakeRange(standinTextview.string.length, 0)
+                                                  withRTF:[self rtfSeparator:i+1]];
+                [standinTextview replaceCharactersInRange:NSMakeRange(standinTextview.string.length, 0)
+                                                 withRTFD:data];
+            }
         }
     }
+    [self saveRTFD:standinTextview];
+}
+
+- (NSData *)rtfTitle {
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.windowControllers.firstObject.window.title];
+    [attributedString addAttribute:NSFontAttributeName value:DEFAULT_BOLD_FONT range:NSMakeRange(0, attributedString.length)];
+    NSData *data = [attributedString dataFromRange:(NSRange){0, [attributedString length]} documentAttributes:@{NSDocumentTypeDocumentAttribute: NSRTFTextDocumentType} error:NULL];
+    return data;
+}
+
+- (NSData *)rtfSeparator:(NSUInteger)pageNumber {
+    NSString *separatorString = [NSString stringWithFormat:@"\n\nSlide %lu\n\n", pageNumber];
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:separatorString];
+    [attributedString addAttribute:NSFontAttributeName value:DEFAULT_BOLD_FONT range:NSMakeRange(0, attributedString.length)];
+    NSData *data = [attributedString dataFromRange:(NSRange){0, [attributedString length]} documentAttributes:@{NSDocumentTypeDocumentAttribute: NSRTFTextDocumentType} error:NULL];
+    return data;
+}
+
+- (void)saveRTFD:(NSTextView *)textview {
     NSSavePanel *panel = [NSSavePanel savePanel];
+    [panel setNameFieldStringValue:@"Notes.rtfd"];
     [panel beginSheetModalForWindow:self.windowControllers.firstObject.window completionHandler:^(NSModalResponse response) {
         if (response == NSModalResponseOK)
-            [text writeToFile:panel.URL.path atomically:true encoding:NSUTF8StringEncoding error:NULL];
+            [textview writeRTFDToFile:panel.URL.path atomically:true];
         else
             NSBeep();
     }];
 }
 
 - (IBAction)reformat:(id)sender {
-    self.textView.font = [NSFont fontWithName:@"Helvetica-Light" size:14.0];
+    self.textView.font = DEFAULT_FONT;
 }
 
 @end
